@@ -14,6 +14,7 @@ def get_blocks(text: str):
 def encode_blocks(blocks: list):
     encoded = []
     for block in blocks:
+        block = block.copy()
         block.append(block[0] ^ block[1] ^ block[2])
         block.append(block[1] ^ block[2] ^ block[3])
         block.append(block[0] ^ block[1] ^ block[3])
@@ -21,38 +22,20 @@ def encode_blocks(blocks: list):
     return encoded
 
 
-def corrupt_block(block: list):
-    i = randint(0, 6)
-    block[i] = int(not block[i])
-    return block
-
-
-def decode_block(block: list):
-    s1 = block[4] ^ block[0] ^ block[1] ^ block[2]
-    s2 = block[5] ^ block[1] ^ block[2] ^ block[3]
-    s3 = block[6] ^ block[0] ^ block[1] ^ block[3]
-    s = (s1, s2, s3)
-    if s == (0, 0, 1):
-        block[6] = int(not block[6])
-    elif s == (0, 1, 0):
-        block[5] = int(not block[5])
-    elif s == (0, 1, 1):
-        block[3] = int(not block[3])
-    elif s == (1, 0, 0):
-        block[4] = int(not block[4])
-    elif s == (1, 0, 1):
-        block[0] = int(not block[0])
-    elif s == (1, 1, 0):
-        block[2] = int(not block[2])
-    elif s == (1, 1, 1):
-        block[1] = int(not block[1])
-    block = block[:4]
-    return block
+def corrupt_blocks(blocks: list):
+    corrupted = []
+    for block in blocks:
+        block = block.copy()
+        i = randint(0, 6)
+        block[i] = int(not block[i])
+        corrupted.append(block)
+    return corrupted
 
 
 def decode_blocks(blocks: list) -> list:
     decoded = []
     for block in blocks:
+        block = block.copy()
         s1 = block[4] ^ block[0] ^ block[1] ^ block[2]
         s2 = block[5] ^ block[1] ^ block[2] ^ block[3]
         s3 = block[6] ^ block[0] ^ block[1] ^ block[3]
@@ -91,7 +74,7 @@ def main():
         print('Initial:', blocks)
         blocks = encode_blocks(blocks)
         print('Encoded:', blocks)
-        blocks = [corrupt_block(block) for block in blocks]
+        blocks = corrupt_blocks(blocks)
         print('Corrupted:', blocks)
         blocks = decode_blocks(blocks)
         print('Decoded:', blocks)
